@@ -28,6 +28,14 @@ class Game {
 
     // GUI
     this.setupGui();
+
+    // Create all the objects
+    this.gameObjects = [];
+    this.init();
+  }
+
+  init() {
+    this.gameObjects.push(new MyObject(this));
   }
 
   animate() {
@@ -36,6 +44,9 @@ class Game {
   }
 
   render() {
+    for (let i = 0; i < this.gameObjects.length; i++) {
+      this.gameObjects[i].update();
+    }
     this.renderer.render(this.scene, this.camera);
   }
 
