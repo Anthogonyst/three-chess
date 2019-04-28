@@ -16,6 +16,7 @@ class BoardGame {
     this.size = 8;
     this.board = [];
     this.createBoard();
+    this.selectedPiece = null;
   }
 
   createBoard() {
@@ -36,13 +37,31 @@ class BoardGame {
     }
   }
 
-  showMoves(piece) {
-    // Deactivate any current active spaces
+  // Returns an array of objects that can be clicked
+  // Used for raycasting
+  getClickables() {
+    const clickables = [];
     for (const row of this.board) {
       for (const tile of row) {
-        tile.space.deactivate();
+        if (tile.space.active) {
+          clickables.push(tile.space.mesh);
+        }
+        // TODO: Add logic for team clicking only
+        if (tile.piece) {
+          clickables.push(tile.piece.mesh);
+        }
       }
     }
+    return clickables;
+  }
+
+  selectPiece(piece) {
+    this.selectedPiece = piece;
+    this.showMoves(this.selectedPiece);
+  }
+
+  showMoves(piece) {
+    this.deactivateSpaces();
     // Activate the spaces that are valid moves
     const moves = piece.getMoves();
     for (const move of moves) {
@@ -50,13 +69,28 @@ class BoardGame {
     }
   }
 
-  movePiece(piece, newPosition) {
+  deactivateSpaces() {
+    // Deactivate any current active spaces
+    for (const row of this.board) {
+      for (const tile of row) {
+        tile.space.deactivate();
+      }
+    }
+  }
+
+  movePiece(newPosition) {
+    if (this.selectedPiece === null) {
+      throw new Error("A piece is not selected");
+    }
     // Make the current position null
-    this.board[piece.position[0]][piece.position[1]].piece = null;
+    this.board[this.selectedPiece.position[0]][this.selectedPiece.position[1]].piece = null;
     // TODO: add a capturing event/hook
     
     // Move the piece
-    this.board[newPosition[0]][newPosition[1]].piece = piece;
+    this.board[newPosition[0]][newPosition[1]].piece = this.selectedPiece;
+    this.selectedPiece.setPosition(newPosition);
+
+    this.deactivateSpaces();
   }
   
   checkOnBoard(position) {
@@ -80,7 +114,7 @@ class BoardGame {
     }
     return this.board[position[0]][position[1]].piece;
   }
-
+  
   getSpaceAtPosition(position) {
     if (!this.checkOnBoard(position)) {
       throw new Error("Invalid board position");
@@ -91,7 +125,9 @@ class BoardGame {
 
 class SpaceBlock {
   constructor(boardGame, position, isBlack) {
+    this.boardGame = boardGame;
     this.position = position;
+    this.active = false;
     const x = position[0];
     const y = position[1];
     this.material = (x % 2 === 0 && y % 2 === 1) || (x % 2 === 1 && y % 2 === 0) ? blackMat : whiteMat;
@@ -100,15 +136,20 @@ class SpaceBlock {
       this.material,
     );
     this.mesh.position.set(spaceSize * position[0], 0, spaceSize * position[1]);
-    boardGame.game.scene.add(this.mesh);
+    this.mesh.onClickCallback = (function() {
+      this.boardGame.movePiece(position);
+    }).bind(this);
+    this.boardGame.game.scene.add(this.mesh);
   }
 
   activate() {
     this.mesh.material = yellowMat;
+    this.active = true;
   }
 
   deactivate() {
     this.mesh.material = this.material;
+    this.active = false;
   }
 }
 
@@ -128,6 +169,15 @@ class BoardPiece {
     }
     this.position = newPosition ? newPosition : this.position;
     this.mesh.position.set(spaceSize * this.position[0], 10, spaceSize * this.position[1]);
+  }
+
+  setClickHandler() {
+    if (!this.mesh) {
+      throw new Error("A mesh is not defined for this object");
+    }
+    this.mesh.onClickCallback = (function() {
+      this.boardGame.selectPiece(this);
+    }).bind(this);
   }
 }
 
@@ -210,10 +260,18 @@ class PawnChessPiece extends ChessPiece {
     super(boardGame, position, team);
     this.type = 'pawn';
     this.deltas = [
-      [0, -1, 3],
+      [-1, 0, 3],
       [-1, -1, 2],
-      [1, -1, 2]
+      [-1, 1, 2]
     ];
+    // Test mesh
+    this.mesh = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(8, 10, 8),
+      whiteMat
+    );
+    this.setPosition();
+    this.setClickHandler();
+    this.boardGame.game.scene.add(this.mesh);
   }
 }
 
@@ -227,11 +285,13 @@ class RookChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
+    // Test mesh
     this.mesh = new THREE.Mesh(
       new THREE.BoxBufferGeometry(8, 10, 8),
       whiteMat
     );
     this.setPosition();
+    this.setClickHandler();
     this.boardGame.game.scene.add(this.mesh);
   }
 }
@@ -246,5 +306,13 @@ class BishopChessPiece extends ChessPiece {
       [-1, 1, 0],
       [-1, -1, 0]
     ];
+    // Test mesh
+    this.mesh = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(8, 10, 8),
+      whiteMat
+    );
+    this.setPosition();
+    this.setClickHandler();
+    this.boardGame.game.scene.add(this.mesh);
   }
 }

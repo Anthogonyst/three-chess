@@ -29,16 +29,34 @@ class Game {
 
     const ambientLight = new THREE.DirectionalLight(0xff0000, 1);
 		this.scene.add(ambientLight);
-    
-    // Add listeners
-    window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 
+    // Create mouse and raycaster for picking
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    
     // GUI
     this.setupGui();
 
     // Create all the objects
     this.gameObjects = [];
     this.init();
+
+    // Add listeners
+    window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    window.addEventListener('click', this.onDocumentMouseClick.bind(this), false);
+  }
+
+  onDocumentMouseClick(event) {
+    event.preventDefault();
+
+    this.mouse.x = ( event.clientX / this.renderer.domElement.clientWidth ) * 2 - 1;
+    this.mouse.y = - ( event.clientY / this.renderer.domElement.clientHeight ) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(this.boardGame.getClickables()); 
+    if ( intersects.length > 0 ) {
+      intersects[0].object.onClickCallback();
+    }
   }
 
   init() {
