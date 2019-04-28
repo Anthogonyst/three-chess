@@ -1,14 +1,18 @@
-const boxGeom = new THREE.BoxBufferGeometry(10, 10, 10);
-const whiteMat = new THREE.MeshPhongMaterial({
+const spaceSize = 10;
+const boxGeom = new THREE.BoxBufferGeometry(spaceSize, spaceSize, spaceSize);
+const whiteMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('white')
 });
-const blackMat = new THREE.MeshPhongMaterial({
+const blackMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('black')
+});
+const yellowMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('yellow')
 });
 
 class BoardGame {
   constructor(game) {
-    this.game = game
+    this.game = game;
     this.size = 8;
     this.board = [];
     this.createBoard();
@@ -18,34 +22,41 @@ class BoardGame {
     for (let i = 0; i < this.size; i++) {
       const row = [];
       for (let j = 0; j < this.size; j++) {
-        // Draw the board
-        const box = new THREE.Mesh(
-          boxGeom,
-          whiteMat
-        );
-        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
-          box.material = blackMat;
-        }
-        box.position.set(40 - 10 * j, 0, 40 - 10 * i);
-        this.game.scene.add(box);
+        let piece = null;
         // Add to the board data structure
         if (i === 7) {
-          row.push(new RookChessPiece(this, [j, i], 1));
-        } else { 
-          row.push(null);
+          piece = new RookChessPiece(this, [i, j], 1);
         }
+        row.push({
+          piece: piece,
+          space: new SpaceBlock(this, [i, j])
+        });
       }
       this.board.push(row);
     }
   }
 
+  showMoves(piece) {
+    // Deactivate any current active spaces
+    for (const row of this.board) {
+      for (const tile of row) {
+        tile.space.deactivate();
+      }
+    }
+    // Activate the spaces that are valid moves
+    const moves = piece.getMoves();
+    for (const move of moves) {
+      this.getSpaceAtPosition(move).activate();
+    }
+  }
+
   movePiece(piece, newPosition) {
     // Make the current position null
-    this.board[piece.position[0]][piece.position[1]] = null;
+    this.board[piece.position[0]][piece.position[1]].piece = null;
     // TODO: add a capturing event/hook
     
     // Move the piece
-    this.board[newPosition[0]][newPosition[1]] = piece;
+    this.board[newPosition[0]][newPosition[1]].piece = piece;
   }
   
   checkOnBoard(position) {
@@ -67,7 +78,37 @@ class BoardGame {
     if (!this.checkOnBoard(position)) {
       throw new Error("Invalid board position");
     }
-    return this.board[position[0]][position[1]];
+    return this.board[position[0]][position[1]].piece;
+  }
+
+  getSpaceAtPosition(position) {
+    if (!this.checkOnBoard(position)) {
+      throw new Error("Invalid board position");
+    }
+    return this.board[position[0]][position[1]].space;
+  }
+}
+
+class SpaceBlock {
+  constructor(boardGame, position, isBlack) {
+    this.position = position;
+    const x = position[0];
+    const y = position[1];
+    this.material = (x % 2 === 0 && y % 2 === 1) || (x % 2 === 1 && y % 2 === 0) ? blackMat : whiteMat;
+    this.mesh = new THREE.Mesh(
+      boxGeom,
+      this.material,
+    );
+    this.mesh.position.set(spaceSize * position[0], 0, spaceSize * position[1]);
+    boardGame.game.scene.add(this.mesh);
+  }
+
+  activate() {
+    this.mesh.material = yellowMat;
+  }
+
+  deactivate() {
+    this.mesh.material = this.material;
   }
 }
 
@@ -79,6 +120,15 @@ class BoardPiece {
   }
 
   getMoves() {}
+
+  // Updates and initializes piece positions
+  setPosition(newPosition) {
+    if (!this.mesh) {
+      throw new Error("A mesh is not defined for this object");
+    }
+    this.position = newPosition ? newPosition : this.position;
+    this.mesh.position.set(spaceSize * this.position[0], 10, spaceSize * this.position[1]);
+  }
 }
 
 /* ChessPiece
@@ -145,10 +195,10 @@ class ChessPiece extends BoardPiece {
       return false;
     }
     let canMove = false;
-    if (options.empty) {
+    if (options.attack) {
       canMove = canMove || this.boardGame.isPositionEnemy(position, this.team);
     }
-    if (options.attack) {
+    if (options.empty) {
       canMove = canMove || this.boardGame.isPositionEmpty(position);
     }
     return canMove;
@@ -177,6 +227,12 @@ class RookChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
+    this.mesh = new THREE.Mesh(
+      new THREE.BoxBufferGeometry(8, 10, 8),
+      whiteMat
+    );
+    this.setPosition();
+    this.boardGame.game.scene.add(this.mesh);
   }
 }
 

@@ -20,12 +20,16 @@ class Game {
 
     // Setup Trackball controls
     this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
- 
+    this.controls.target.set(35, 0, 35);
+    
     // Add lights to scene
-    const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-		directionalLight.position.set( 1, 1, 1 ).normalize();
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+		directionalLight.position.set(0, 1, 0).normalize();
 		this.scene.add(directionalLight);
-   
+
+    const ambientLight = new THREE.DirectionalLight(0xff0000, 1);
+		this.scene.add(ambientLight);
+    
     // Add listeners
     window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
 
