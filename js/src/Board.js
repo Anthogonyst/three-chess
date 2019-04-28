@@ -1,5 +1,14 @@
+const boxGeom = new THREE.BoxBufferGeometry(10, 10, 10);
+const whiteMat = new THREE.MeshPhongMaterial({
+  color: new THREE.Color('white')
+});
+const blackMat = new THREE.MeshPhongMaterial({
+  color: new THREE.Color('black')
+});
+
 class BoardGame {
-  constructor() {
+  constructor(game) {
+    this.game = game
     this.size = 8;
     this.board = [];
     this.createBoard();
@@ -9,6 +18,17 @@ class BoardGame {
     for (let i = 0; i < this.size; i++) {
       const row = [];
       for (let j = 0; j < this.size; j++) {
+        // Draw the board
+        const box = new THREE.Mesh(
+          boxGeom,
+          whiteMat
+        );
+        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
+          box.material = blackMat;
+        }
+        box.position.set(10 * j, 0, 10 * i);
+        this.game.scene.add(box);
+        // Add to the board data structure
         if (i === 7) {
           row.push(new RookChessPiece(this, [j, i], 1));
         } else { 
@@ -17,6 +37,15 @@ class BoardGame {
       }
       this.board.push(row);
     }
+  }
+
+  movePiece(piece, newPosition) {
+    // Make the current position null
+    this.board[piece.position[0]][piece.position[1]] = null;
+    // TODO: add a capturing event/hook
+    
+    // Move the piece
+    this.board[newPosition[0]][newPosition[1]] = piece;
   }
   
   checkOnBoard(position) {
@@ -106,6 +135,11 @@ class ChessPiece extends BoardPiece {
     return moves;
   }
 
+  /* isValidMove
+   * options specify what type of move it is
+   * some piece like pawns can only move if they are attacking
+   *   and only move when a position is empty
+   */
   isValidMove(position, options={attack: true, empty: true}) {
     if (!this.boardGame.checkOnBoard(position)) {
       return false;

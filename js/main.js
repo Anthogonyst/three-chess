@@ -17,6 +17,21 @@ class Game {
     this.camera.position.x = 50;
     this.camera.position.y = 50;
     this.camera.lookAt(this.scene.position);
+
+    // Setup Trackball controls
+    console.log('this');
+    
+    this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
+    /*
+    this.controls.rotateSpeed = 1.0;
+    this.controls.zoomSpeed = 1.2;
+    this.controls.panSpeed = 0.8;
+    this.controls.noZoom = false;
+    this.controls.noPan = false;
+    this.controls.staticMoving = true;
+    this.controls.dynamicDampingFactor = 0.3;
+    this.controls.keys = [ 65, 83, 68 ];
+    */
     
     // Add lights to scene
     const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -35,7 +50,7 @@ class Game {
   }
 
   init() {
-    this.gameObjects.push(new MyObject(this));
+    this.boardGame = new BoardGame(this);
   }
 
   animate() {
@@ -47,6 +62,7 @@ class Game {
     for (let i = 0; i < this.gameObjects.length; i++) {
       this.gameObjects[i].update();
     }
+    this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 
