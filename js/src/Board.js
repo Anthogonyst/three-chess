@@ -26,7 +26,7 @@ class BoardGame {
         if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
           box.material = blackMat;
         }
-        box.position.set(10 * j, 0, 10 * i);
+        box.position.set(40 - 10 * j, 0, 40 - 10 * i);
         this.game.scene.add(box);
         // Add to the board data structure
         if (i === 7) {
