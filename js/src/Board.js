@@ -9,6 +9,24 @@ const blackMat = new THREE.MeshToonMaterial({
 const yellowMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('yellow')
 });
+const purpleMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('purple')
+});
+const greenMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('green')
+});
+const blueMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('blue')
+});
+const orangeMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('orange')
+});
+const redMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('red')
+});
+
+var meshes = [];
+var meshIndex = 0;
 
 class BoardGame {
   constructor(game) {
@@ -26,7 +44,19 @@ class BoardGame {
         let piece = null;
         // Add to the board data structure
         if (i === 7) {
-          piece = new RookChessPiece(this, [i, j], 1);
+          if (j === 7 || j === 0) {
+            piece = new RookChessPiece(this, [i, j], 1);
+          } else if (j === 6 || j === 1) {
+            piece = new KnightChessPiece(this, [i, j], 1);
+          } else if (j === 5 || j === 2) {
+            piece = new BishopChessPiece(this, [i, j], 1);
+          } else if (j === 4) {
+            piece = new QueenChessPiece(this, [i, j], 1);
+          } else {
+            piece = new KingChessPiece(this, [i, j], 1);
+          }
+        } else if ( i === 6) {
+          piece = new PawnChessPiece(this, [i, j], 1);
         }
         row.push({
           piece: piece,
@@ -158,6 +188,8 @@ class BoardPiece {
     this.boardGame = boardGame;
     this.position = position;
     this.team = team;
+    this.index = meshIndex;
+    meshIndex += 1;
   }
 
   getMoves() {}
@@ -264,14 +296,13 @@ class PawnChessPiece extends ChessPiece {
       [-1, -1, 2],
       [-1, 1, 2]
     ];
-    // Test mesh
-    this.mesh = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(8, 10, 8),
-      whiteMat
-    );
-    this.setPosition();
-    this.setClickHandler();
-    this.boardGame.game.scene.add(this.mesh);
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/pawn.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
   }
 }
 
@@ -285,14 +316,13 @@ class RookChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
-    // Test mesh
-    this.mesh = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(8, 10, 8),
-      whiteMat
-    );
-    this.setPosition();
-    this.setClickHandler();
-    this.boardGame.game.scene.add(this.mesh);
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/rook.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
   }
 }
 
@@ -304,15 +334,87 @@ class BishopChessPiece extends ChessPiece {
       [1, 1, 0],
       [1, -1, 0],
       [-1, 1, 0],
-      [-1, -1, 0]
+      [-1, -1, 0],
     ];
-    // Test mesh
-    this.mesh = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(8, 10, 8),
-      whiteMat
-    );
-    this.setPosition();
-    this.setClickHandler();
-    this.boardGame.game.scene.add(this.mesh);
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/bishop.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
+  }
+}
+
+
+class QueenChessPiece extends ChessPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team);
+    this.type = 'queen';
+    this.deltas = [
+      [1, 1, 0],
+      [1, -1, 0],
+      [-1, 1, 0],
+      [-1, -1, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      [-1, 0, 0],
+      [0, -1, 0]
+    ];
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/queen.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
+  }
+}
+
+class KingChessPiece extends ChessPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team);
+    this.type = 'king';
+    this.deltas = [
+      [1, 1, 1],
+      [1, -1, 1],
+      [-1, 1, 1],
+      [-1, -1, 1],
+      [1, 0, 1],
+      [0, 1, 1],
+      [-1, 0, 1],
+      [0, -1, 1]
+    ];
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/king.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
+  }
+}
+
+class KnightChessPiece extends ChessPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team);
+    this.type = 'knight';
+    this.deltas = [
+      [2, 1, 1],
+      [2, -1, 1],
+      [-2, 1, 1],
+      [-2, -1, 1],
+      [1, 2, 1],
+      [1, -2, 1],
+      [-1, 2, 1],
+      [-1, -2, 1]
+    ];
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/knight.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
   }
 }
