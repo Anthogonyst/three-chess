@@ -9,21 +9,6 @@ const blackMat = new THREE.MeshToonMaterial({
 const yellowMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('yellow')
 });
-const purpleMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('purple')
-});
-const greenMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('green')
-});
-const blueMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('blue')
-});
-const orangeMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('orange')
-});
-const redMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('red')
-});
 
 var meshes = [];
 var meshIndex = 0;
@@ -57,6 +42,14 @@ class BoardGame {
           }
         } else if ( i === 6) {
           piece = new PawnChessPiece(this, [i, j], 1);
+        } else if ( i === 0 || i == 2) {
+          if (j % 2 == 0) {
+            piece = new CheckerPiece(this, [i, j], 2);
+          }
+        } else if (i === 1) {
+          if (j % 2 == 1) {
+            piece = new CheckerPiece(this, [i, j], 2);
+          }
         }
         row.push({
           piece: piece,
@@ -200,7 +193,7 @@ class BoardPiece {
       throw new Error("A mesh is not defined for this object");
     }
     this.position = newPosition ? newPosition : this.position;
-    this.mesh.position.set(spaceSize * this.position[0], 10, spaceSize * this.position[1]);
+    this.mesh.position.set(spaceSize * this.position[0], this.mesh.position.y, spaceSize * this.position[1]);
   }
 
   setClickHandler() {
@@ -299,6 +292,7 @@ class PawnChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/pawn.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 10;
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
@@ -319,6 +313,7 @@ class RookChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/rook.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 11;
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
@@ -339,6 +334,7 @@ class BishopChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/bishop.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 12;
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
@@ -364,6 +360,7 @@ class QueenChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/queen.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 13
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
@@ -388,6 +385,7 @@ class KingChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/king.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 14;
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
@@ -412,6 +410,28 @@ class KnightChessPiece extends ChessPiece {
     var loader = new THREE.GLTFLoader();
     loader.load('js/src/knight.glb', (function(gltf) {
       this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 10;
+      this.setPosition();
+      this.setClickHandler();
+      this.boardGame.game.scene.add(this.mesh);
+    }).bind(this));
+  }
+}
+
+class CheckerPiece extends ChessPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team);
+    this.type = 'checker';
+    this.deltas = [
+      [1, 1, 1],
+      [1, -1, 1],
+      [-1, 1, 1],
+      [-1, -1, 1],
+    ];
+    var loader = new THREE.GLTFLoader();
+    loader.load('js/src/checker.glb', (function(gltf) {
+      this.mesh = gltf.scene.children[2];
+      this.mesh.position.y += 6;
       this.setPosition();
       this.setClickHandler();
       this.boardGame.game.scene.add(this.mesh);
