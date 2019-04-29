@@ -9,21 +9,6 @@ const blackMat = new THREE.MeshToonMaterial({
 const yellowMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('yellow')
 });
-const purpleMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('purple')
-});
-const greenMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('green')
-});
-const blueMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('blue')
-});
-const orangeMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('orange')
-});
-const redMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('red')
-});
 
 var meshes = [];
 var meshIndex = 0;
@@ -57,6 +42,14 @@ class BoardGame {
           }
         } else if ( i === 6) {
           piece = new PawnChessPiece(this, [i, j], 1);
+        } else if ( i === 0 || i == 2) {
+          if (j % 2 == 0) {
+            piece = new CheckerPiece(this, [i, j], 2);
+          }
+        } else if (i === 1) {
+          if (j % 2 == 1) {
+            piece = new CheckerPiece(this, [i, j], 2);
+          }
         }
         row.push({
           piece: piece,
@@ -205,7 +198,7 @@ class BoardPiece {
       throw new Error("A mesh is not defined for this object");
     }
     this.position = newPosition ? newPosition : this.position;
-    this.mesh.position.set(spaceSize * this.position[0], 10, spaceSize * this.position[1]);
+    this.mesh.position.set(spaceSize * this.position[0], this.mesh.position.y, spaceSize * this.position[1]);
   }
 
   setClickHandler() {
@@ -301,6 +294,7 @@ class PawnChessPiece extends ChessPiece {
       [-1, -1, 2],
       [-1, 1, 2]
     ];
+    this.mesh.position.y += 10;
   }
 }
 
@@ -314,6 +308,7 @@ class RookChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
+    this.mesh.position.y += 11;
   }
 }
 
@@ -327,6 +322,7 @@ class BishopChessPiece extends ChessPiece {
       [-1, 1, 0],
       [-1, -1, 0],
     ];
+    this.mesh.position.y += 12;
   }
 }
 
@@ -345,6 +341,7 @@ class QueenChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
+    this.mesh.position.y += 13;
   }
 }
 
@@ -362,6 +359,7 @@ class KingChessPiece extends ChessPiece {
       [-1, 0, 1],
       [0, -1, 1]
     ];
+    this.mesh.position.y += 14;
   }
 }
 
@@ -379,5 +377,20 @@ class KnightChessPiece extends ChessPiece {
       [-1, 2, 1],
       [-1, -2, 1]
     ];
+    this.mesh.position.y += 10;
+  }
+}
+
+class CheckerPiece extends ChessPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team, 'checker');
+    this.type = 'checker';
+    this.deltas = [
+      [1, 1, 1],
+      [1, -1, 1],
+      [-1, 1, 1],
+      [-1, -1, 1],
+    ];
+    this.mesh.position.y += 6;
   }
 }

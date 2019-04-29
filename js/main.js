@@ -128,6 +128,7 @@ const modelNames = [
   "bishop",
   "queen",
   "rook",
+  "checker",
 ];
 
 const loader = new THREE.GLTFLoader();
