@@ -184,12 +184,17 @@ class SpaceBlock {
 }
 
 class BoardPiece {
-  constructor(boardGame, position, team) {
+  constructor(boardGame, position, team, modelName) {
     this.boardGame = boardGame;
     this.position = position;
     this.team = team;
-    this.index = meshIndex;
-    meshIndex += 1;
+    // Load the mesh
+    this.mesh = this.boardGame.game.models[modelName].clone();
+
+    // Setup the mesh and handlers
+    this.setPosition();
+    this.setClickHandler();
+    this.boardGame.game.scene.add(this.mesh);
   }
 
   getMoves() {}
@@ -224,8 +229,8 @@ class BoardPiece {
  *   3 = move only if the new psoition is empty
  */
 class ChessPiece extends BoardPiece {
-  constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+  constructor(boardGame, position, team, modelName) {
+    super(boardGame, position, team, modelName);
     this.type = 'undefined';
     this.deltas = [];
   }
@@ -289,26 +294,19 @@ class ChessPiece extends BoardPiece {
 
 class PawnChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'pawn');
     this.type = 'pawn';
     this.deltas = [
       [-1, 0, 3],
       [-1, -1, 2],
       [-1, 1, 2]
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/pawn.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }
 
 class RookChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'rook');
     this.type = 'rook';
     this.deltas = [
       [1, 0, 0],
@@ -316,19 +314,12 @@ class RookChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/rook.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }
 
 class BishopChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'bishop');
     this.type = 'bishop';
     this.deltas = [
       [1, 1, 0],
@@ -336,20 +327,13 @@ class BishopChessPiece extends ChessPiece {
       [-1, 1, 0],
       [-1, -1, 0],
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/bishop.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }
 
 
 class QueenChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'queen');
     this.type = 'queen';
     this.deltas = [
       [1, 1, 0],
@@ -361,19 +345,12 @@ class QueenChessPiece extends ChessPiece {
       [-1, 0, 0],
       [0, -1, 0]
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/queen.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }
 
 class KingChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'king');
     this.type = 'king';
     this.deltas = [
       [1, 1, 1],
@@ -385,19 +362,12 @@ class KingChessPiece extends ChessPiece {
       [-1, 0, 1],
       [0, -1, 1]
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/king.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }
 
 class KnightChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team);
+    super(boardGame, position, team, 'knight');
     this.type = 'knight';
     this.deltas = [
       [2, 1, 1],
@@ -409,12 +379,5 @@ class KnightChessPiece extends ChessPiece {
       [-1, 2, 1],
       [-1, -2, 1]
     ];
-    var loader = new THREE.GLTFLoader();
-    loader.load('js/src/knight.glb', (function(gltf) {
-      this.mesh = gltf.scene.children[2];
-      this.setPosition();
-      this.setClickHandler();
-      this.boardGame.game.scene.add(this.mesh);
-    }).bind(this));
   }
 }

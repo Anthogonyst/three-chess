@@ -1,5 +1,8 @@
 class Game {
-  constructor() {
+  constructor(models) {
+    // Models from the loader
+    this.models = models;
+    console.log(this.models);
     // Create the renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -37,13 +40,13 @@ class Game {
     // GUI
     this.setupGui();
 
-    // Create all the objects
-    this.gameObjects = [];
-    this.init();
-
     // Add listeners
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     window.addEventListener('click', this.onDocumentMouseClick.bind(this), false);
+
+    // Create all the objects
+    this.gameObjects = [];
+    this.init();
   }
 
   onDocumentMouseClick(event) {
@@ -59,7 +62,23 @@ class Game {
     }
   }
 
+  loadModels(callback) {
+    this.loader = new THREE.GLTFLoader();
+    this.models = {};
+    for (const modelName of modelNames) {
+      this.loader.load(modelDirectory + modelName + ".glb", (function(gltf) {
+        this.models[modelName] = gltf.scene.children[2];
+        // We have loaded all the models
+        if (modelNames.indexOf(modelName) === modelNames.length - 1) {
+          console.log(this.models);
+
+        }
+      }).bind(this));
+    }
+  }
+
   init() {
+    
     this.boardGame = new BoardGame(this);
   }
 
@@ -101,5 +120,25 @@ class Game {
   }
 }
 
-const game = new Game();
-game.animate();
+const modelDirectory = "js/src/"
+const modelNames = [
+  "pawn",
+  "king",
+  "knight",
+  "bishop",
+  "queen",
+  "rook",
+];
+
+const loader = new THREE.GLTFLoader();
+const models = {};
+for (const modelName of modelNames) {
+  loader.load(modelDirectory + modelName + ".glb", function(gltf) {
+    models[modelName] = gltf.scene.children[2];
+    // We have loaded all the models
+    if (modelNames.indexOf(modelName) === modelNames.length - 1) {
+      const game = new Game(models);
+      game.animate();
+    }
+  });
+}
