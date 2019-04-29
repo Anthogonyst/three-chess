@@ -112,7 +112,7 @@ class BoardGame {
     // Move the piece
     this.board[newPosition[0]][newPosition[1]].piece = this.selectedPiece;
     this.selectedPiece.setPosition(newPosition);
-
+    this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
   }
   
@@ -181,6 +181,8 @@ class BoardPiece {
     this.boardGame = boardGame;
     this.position = position;
     this.team = team;
+    this.hasMoved = false;
+    
     // Load the mesh
     this.mesh = this.boardGame.game.models[modelName].clone();
 
@@ -258,6 +260,12 @@ class ChessPiece extends BoardPiece {
       case 3:
         if (this.isValidMove(newPosition, { empty: true })) {
           moves.push(newPosition);
+          if (this.type === 'pawn' && !this.hasMoved) {
+            newPosition = [newPosition[0] + delta[0], newPosition[1] + delta[1]];
+            if (this.isValidMove(newPosition, {empty: true})) {
+              moves.push(newPosition);
+            }
+          }
         }
         break;
       }
