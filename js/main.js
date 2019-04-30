@@ -2,7 +2,7 @@ class Game {
   constructor(models) {
     // Models from the loader
     this.models = models;
-    console.log(this.models);
+
     // Create the renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio( window.devicePixelRatio );

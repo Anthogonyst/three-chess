@@ -392,7 +392,7 @@ class KnightChessPiece extends ChessPiece {
   }
 }
 
-class CheckerPiece extends ChessPiece {
+class CheckerPiece extends BoardPiece {
   constructor(boardGame, position, team) {
     super(boardGame, position, team, 'checker');
     this.type = 'checker';
@@ -401,5 +401,22 @@ class CheckerPiece extends ChessPiece {
       [1, -1, 1],
     ];
     this.mesh.position.y += 6;
+  }
+
+  getMoves() {
+    const moves = [];
+    for (const delta of this.deltas) {
+      let newPosition = [this.position[0] + delta[0], this.position[1] + delta[1]];
+      if (this.boardGame.isPositionEmpty(newPosition)) {
+        moves.push(newPosition);
+      }
+      if (this.boardGame.isPositionEnemy(newPosition)) {
+        newPosition = [newPosition[0] + delta[0], newPosition[1] + delta[1]];
+        if (this.boardGame.isPositionEmpty(newPosition)) {
+          moves.push(newPosition);
+        }
+      }
+    }
+    return moves;
   }
 }
