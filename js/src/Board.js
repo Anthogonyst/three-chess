@@ -80,13 +80,12 @@ class BoardGame {
 
   selectPiece(piece) {
     this.selectedPiece = piece;
-    this.showMoves(this.selectedPiece);
+    this.showMoves(this.selectedPiece.getMoves());
   }
 
-  showMoves(piece) {
+  showMoves(moves) {
     this.deactivateSpaces();
     // Activate the spaces that are valid moves
-    const moves = piece.getMoves();
     for (const move of moves) {
       this.getSpaceAtPosition(move).activate();
     }
@@ -105,6 +104,7 @@ class BoardGame {
     if (this.selectedPiece === null) {
       throw new Error("A piece is not selected");
     }
+    
     // Make the current position null
     // this.board[this.selectedPiece.position[0]][this.selectedPiece.position[1]].piece = null;
     this.clearPosition(this.selectedPiece.position);
@@ -112,7 +112,8 @@ class BoardGame {
     // Capturing piece logic for chess and checkers
     // For checkers, the attack space will either be null if the checker only moved 1 corner away
     // Or it will be the piece that the checker hopped over
-    const attackPosition = this.selectedPiece.type === "checker" ? [
+    const pieceIsChecker = this.selectedPiece.type === "checker"
+    const attackPosition = pieceIsChecker ? [
       newPosition[0] - Math.sign(newPosition[0] - this.selectedPiece.position[0]),
       newPosition[1] - Math.sign(newPosition[1] - this.selectedPiece.position[1])
     ] : newPosition;
@@ -128,9 +129,15 @@ class BoardGame {
     this.selectedPiece.setPosition(newPosition);
     this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
-
-    // TODO: at logic for multiple checker moves
-    this.turn = (this.turn % 2) + 1
+    
+    // Allow for multiple moves if checkers captures a piece
+    if (capturedPiece && pieceIsChecker && this.selectedPiece.getMoves({attackOnly: true}).length > 0) {
+      this.showMoves(this.selectedPiece.getMoves({attackOnly: true}));
+      this.turn = 4;
+    } else {
+      this.turn = (this.turn % 2) + 1
+    }
+    
   }
   
   checkOnBoard(position) {
@@ -283,16 +290,16 @@ class ChessPiece extends BoardPiece {
         }
         break;
       case 2:
-        if (this.isValidMove(newPosition, { attack: true })) {
+        if (this.isValidMove(newPosition, { attackOnly: true })) {
           moves.push(newPosition);
         }
         break;
       case 3:
-        if (this.isValidMove(newPosition, { empty: true })) {
+        if (this.isValidMove(newPosition, { emptyOnly: true })) {
           moves.push(newPosition);
           if (this.type === 'pawn' && !this.hasMoved) {
             newPosition = [newPosition[0] + delta[0], newPosition[1] + delta[1]];
-            if (this.isValidMove(newPosition, {empty: true})) {
+            if (this.isValidMove(newPosition, {emptyOnly: true})) {
               moves.push(newPosition);
             }
           }
@@ -308,15 +315,15 @@ class ChessPiece extends BoardPiece {
    * some piece like pawns can only move if they are attacking
    *   and only move when a position is empty
    */
-  isValidMove(position, options={attack: true, empty: true}) {
+  isValidMove(position, options={attackOnly: true, emptyOnly: true}) {
     if (!this.boardGame.checkOnBoard(position)) {
       return false;
     }
     let canMove = false;
-    if (options.attack) {
+    if (options.attackOnly) {
       canMove = canMove || this.boardGame.isPositionEnemy(position, this.team);
     }
-    if (options.empty) {
+    if (options.emptyOnly) {
       canMove = canMove || this.boardGame.isPositionEmpty(position);
     }
     return canMove;
@@ -430,12 +437,14 @@ class CheckerPiece extends BoardPiece {
     this.mesh.position.y += 6;
   }
 
-  getMoves() {
+  getMoves(options = {attackOnly: false}) {
     const moves = [];
     for (const delta of this.deltas) {
       let newPosition = [this.position[0] + delta[0], this.position[1] + delta[1]];
       // Regular movement
-      if (this.boardGame.checkOnBoard(newPosition) && this.boardGame.isPositionEmpty(newPosition)) {
+      if (!options.attackOnly &&
+          this.boardGame.checkOnBoard(newPosition) &&
+          this.boardGame.isPositionEmpty(newPosition)) {
         moves.push(newPosition);
       }
       // Attacking movement
