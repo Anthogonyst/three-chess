@@ -9,9 +9,9 @@ const blackMat = new THREE.MeshToonMaterial({
 const yellowMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('yellow')
 });
-
-var meshes = [];
-var meshIndex = 0;
+const redMat = new THREE.MeshToonMaterial({
+  color: new THREE.Color('red')
+});
 
 class BoardGame {
   constructor(game) {
@@ -106,11 +106,25 @@ class BoardGame {
       throw new Error("A piece is not selected");
     }
     // Make the current position null
-    this.board[this.selectedPiece.position[0]][this.selectedPiece.position[1]].piece = null;
-    // TODO: add a capturing event/hook
+    // this.board[this.selectedPiece.position[0]][this.selectedPiece.position[1]].piece = null;
+    this.clearPosition(this.selectedPiece.position);
+
+    // Capturing piece logic for chess and checkers
+    // For checkers, the attack space will either be null if the checker only moved 1 corner away
+    // Or it will be the piece that the checker hopped over
+    const attackPosition = this.selectedPiece.type === "checker" ? [
+      newPosition[0] - Math.sign(newPosition[0] - this.selectedPiece.position[0]),
+      newPosition[1] - Math.sign(newPosition[1] - this.selectedPiece.position[1])
+    ] : newPosition;
+    const capturedPiece = this.getPieceAtPosition(attackPosition);
+    // Remove the captured piece if we got one
+    if (capturedPiece) {
+      this.game.scene.remove(capturedPiece.mesh);
+      this.clearPosition(attackPosition);
+    }
     
     // Move the piece
-    this.board[newPosition[0]][newPosition[1]].piece = this.selectedPiece;
+    this.setPieceAtPosition(newPosition, this.selectedPiece);
     this.selectedPiece.setPosition(newPosition);
     this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
@@ -136,16 +150,27 @@ class BoardGame {
 
   getPieceAtPosition(position) {
     if (!this.checkOnBoard(position)) {
-      throw new Error("Invalid board position");
+      throw new Error("GetPieceAtPosition: Invalid board position");
     }
     return this.board[position[0]][position[1]].piece;
   }
   
   getSpaceAtPosition(position) {
     if (!this.checkOnBoard(position)) {
-      throw new Error("Invalid board position");
+      throw new Error("GetSpaceAtPosition: Invalid board position");
     }
     return this.board[position[0]][position[1]].space;
+  }
+
+  clearPosition(position) {
+    this.setPieceAtPosition(position, null)
+  }
+  
+  setPieceAtPosition(position, piece) {
+    if (!this.checkOnBoard(position)) {
+      throw new Error("SetPieceAtPosition: Invalid board position");
+    }
+    this.board[position[0]][position[1]].piece = piece;
   }
 }
 
@@ -195,7 +220,9 @@ class BoardPiece {
     this.boardGame.game.scene.add(this.mesh);
   }
 
-  getMoves() {}
+  getMoves() {
+    throw new Error("Override this method");
+  }
 
   // Updates and initializes piece positions
   setPosition(newPosition) {
@@ -407,12 +434,14 @@ class CheckerPiece extends BoardPiece {
     const moves = [];
     for (const delta of this.deltas) {
       let newPosition = [this.position[0] + delta[0], this.position[1] + delta[1]];
-      if (this.boardGame.isPositionEmpty(newPosition)) {
+      // Regular movement
+      if (this.boardGame.checkOnBoard(newPosition) && this.boardGame.isPositionEmpty(newPosition)) {
         moves.push(newPosition);
       }
-      if (this.boardGame.isPositionEnemy(newPosition)) {
+      // Attacking movement
+      if (this.boardGame.checkOnBoard(newPosition) && this.boardGame.isPositionEnemy(newPosition, this.team)) {
         newPosition = [newPosition[0] + delta[0], newPosition[1] + delta[1]];
-        if (this.boardGame.isPositionEmpty(newPosition)) {
+        if (this.boardGame.checkOnBoard(newPosition) && this.boardGame.isPositionEmpty(newPosition)) {
           moves.push(newPosition);
         }
       }
