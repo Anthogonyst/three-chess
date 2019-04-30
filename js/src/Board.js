@@ -20,6 +20,7 @@ class BoardGame {
     this.board = [];
     this.createBoard();
     this.selectedPiece = null;
+    this.turn = 2;
   }
 
   createBoard() {
@@ -69,8 +70,7 @@ class BoardGame {
         if (tile.space.active) {
           clickables.push(tile.space.mesh);
         }
-        // TODO: Add logic for team clicking only
-        if (tile.piece) {
+        if (tile.piece && tile.piece.team === this.turn) {
           clickables.push(tile.piece.mesh);
         }
       }
@@ -114,6 +114,9 @@ class BoardGame {
     this.selectedPiece.setPosition(newPosition);
     this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
+
+    // TODO: at logic for multiple checker moves
+    this.turn = (this.turn % 2) + 1
   }
   
   checkOnBoard(position) {
@@ -396,8 +399,6 @@ class CheckerPiece extends ChessPiece {
     this.deltas = [
       [1, 1, 1],
       [1, -1, 1],
-      [-1, 1, 1],
-      [-1, -1, 1],
     ];
     this.mesh.position.y += 6;
   }
