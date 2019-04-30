@@ -36,9 +36,6 @@ class Game {
     // Create mouse and raycaster for picking
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
-    
-    // GUI
-    this.setupGui();
 
     // Add listeners
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
@@ -79,6 +76,7 @@ class Game {
 
   init() {
     this.boardGame = new BoardGame(this);
+    this.setupGui();
   }
 
   animate() {
@@ -95,11 +93,11 @@ class Game {
       for (let i = 0; i < this.boardGame.size; i++) {
         for (let j = 0; j < this.boardGame.size; j++) {
           const deltaHeight = 0.05 * Math.sin(Date.now() * 0.001 + i + j);
-          const position = this.boardGame.board[i][j]
-          if (position.piece) {
-            position.piece.mesh.position.y += deltaHeight;
+          const tile = this.boardGame.board[i][j]
+          if (tile.piece) {
+            tile.piece.mesh.position.y += deltaHeight;
           }
-          position.space.mesh.position.y += deltaHeight;
+          tile.space.mesh.position.y += deltaHeight;
         }
       }
     }
@@ -118,6 +116,9 @@ class Game {
     this.effectController = {
       example: 1,
       wave: false,
+      reset: (function () {
+        this.boardGame.reset();
+      }).bind(this)
     }
     const gui = new dat.GUI();
     // Create an gui folder 
@@ -126,12 +127,7 @@ class Game {
     h.add(this.effectController, "wave").name("Wave");
     
     // Create example gui button
-    let b = {
-      Button: function () {
-        console.log("Click");
-      }
-    };
-    gui.add(b, "Button");
+    gui.add(this.effectController, "reset").name("Reset");
   }
 }
 

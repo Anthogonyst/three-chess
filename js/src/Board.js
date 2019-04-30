@@ -17,13 +17,26 @@ class BoardGame {
   constructor(game) {
     this.game = game;
     this.size = 8;
-    this.board = [];
-    this.createBoard();
     this.selectedPiece = null;
     this.turn = 2;
+
+    this.createBoard();
+  }
+
+  reset() {
+    for (const row of this.board) {
+      for (const tile of row) {
+        if (tile.piece) {
+          this.game.scene.remove(tile.piece.mesh);
+        }
+        this.game.scene.remove(tile.space.mesh);
+      }
+    }
+    this.createBoard();
   }
 
   createBoard() {
+    this.board = [];
     for (let i = 0; i < this.size; i++) {
       const row = [];
       this.board.push(row);
