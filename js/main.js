@@ -78,7 +78,6 @@ class Game {
   }
 
   init() {
-    
     this.boardGame = new BoardGame(this);
   }
 
@@ -91,6 +90,20 @@ class Game {
     for (let i = 0; i < this.gameObjects.length; i++) {
       this.gameObjects[i].update();
     }
+    // Do the wave
+    if (this.effectController.wave) {
+      for (let i = 0; i < this.boardGame.size; i++) {
+        for (let j = 0; j < this.boardGame.size; j++) {
+          const deltaHeight = 0.05 * Math.sin(Date.now() * 0.001 + i + j);
+          const position = this.boardGame.board[i][j]
+          if (position.piece) {
+            position.piece.mesh.position.y += deltaHeight;
+          }
+          position.space.mesh.position.y += deltaHeight;
+        }
+      }
+    }
+    
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
@@ -103,13 +116,15 @@ class Game {
 
   setupGui() {
     this.effectController = {
-      example: 1
+      example: 1,
+      wave: false,
     }
     const gui = new dat.GUI();
     // Create an gui folder 
     let h = gui.addFolder("Chess");
-    h.add(this.effectController, "example", 0.0, 20.0, 0.2).name("example");
-
+    h.add(this.effectController, "example", 0.0, 20.0, 0.2).name("Example");
+    h.add(this.effectController, "wave").name("Wave");
+    
     // Create example gui button
     let b = {
       Button: function () {
