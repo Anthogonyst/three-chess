@@ -389,7 +389,7 @@ class BishopChessPiece extends ChessPiece {
 
 class QueenChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team, 'queen', 13);
+    super(boardGame, position, team, 'queen', 14);
     this.type = 'queen';
     this.deltas = [
       [1, 1, 0],
@@ -423,7 +423,7 @@ class KingChessPiece extends ChessPiece {
 
 class KnightChessPiece extends ChessPiece {
   constructor(boardGame, position, team) {
-    super(boardGame, position, team, 'knight', 10);
+    super(boardGame, position, team, 'knight', 8.4);
     this.type = 'knight';
     this.deltas = [
       [2, 1, 1],
