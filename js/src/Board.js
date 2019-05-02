@@ -125,7 +125,7 @@ class BoardGame {
     // Capturing piece logic for chess and checkers
     // For checkers, the attack space will either be null if the checker only moved 1 corner away
     // Or it will be the piece that the checker hopped over
-    const pieceIsChecker = this.selectedPiece.type === "checker"
+    const pieceIsChecker = this.selectedPiece.type === "checker" || this.selectedPiece.type === "crownedchecker"
     const attackPosition = pieceIsChecker ? [
       newPosition[0] - Math.sign(newPosition[0] - this.selectedPiece.position[0]),
       newPosition[1] - Math.sign(newPosition[1] - this.selectedPiece.position[1])
@@ -136,6 +136,17 @@ class BoardGame {
       this.game.scene.remove(capturedPiece.mesh);
       this.clearPosition(attackPosition);
     }
+
+    // handle case if pawn gets to back row
+    if(this.selectedPiece.type === "pawn" && newPosition[0] == 0) {
+      this.game.scene.remove(this.selectedPiece.mesh);
+      this.clearPosition(this.selectedPiece.position);
+      this.selectedPiece = new QueenChessPiece(this, newPosition, 1);
+    } else if(pieceIsChecker && newPosition[0] == 7) {
+      this.game.scene.remove(this.selectedPiece.mesh);
+      this.clearPosition(this.selectedPiece.position);
+      this.selectedPiece = new CrownedCheckerPiece(this, newPosition, 2);
+    } 
     
     // Move the piece
     this.setPieceAtPosition(newPosition, this.selectedPiece);
@@ -439,8 +450,8 @@ class KnightChessPiece extends ChessPiece {
 }
 
 class CheckerPiece extends BoardPiece {
-  constructor(boardGame, position, team) {
-    super(boardGame, position, team, 'checker', 6);
+  constructor(boardGame, position, team, modelName = "checker") {
+    super(boardGame, position, team, modelName, 6);
     this.type = 'checker';
     this.deltas = [
       [1, 1, 1],
@@ -467,5 +478,18 @@ class CheckerPiece extends BoardPiece {
       }
     }
     return moves;
+  }
+}
+
+class CrownedCheckerPiece extends CheckerPiece {
+  constructor(boardGame, position, team) {
+    super(boardGame, position, team, "crownedchecker");
+    this.type = 'crownedchecker';
+    this.deltas = [
+      [1, 1, 1],
+      [1, -1, 1],
+      [-1, 1, 1],
+      [-1, -1, 1]
+    ]
   }
 }
