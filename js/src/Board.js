@@ -160,6 +160,13 @@ class BoardGame {
       this.turn = 4;
     } else {
       this.turn = (this.turn % 2) + 1
+      if(this.turn - 1) {
+        this.game.camera.position.x -= 120;
+        this.game.camera.lookAt(40, 8, 35);
+      } else {
+        this.game.camera.position.x += 120;
+        this.game.camera.lookAt(40, 8, 35);
+      }
     }
     
   }

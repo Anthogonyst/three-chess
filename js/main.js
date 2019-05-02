@@ -16,14 +16,14 @@ class Game {
 
     // Create the camera
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 15000);
-    this.camera.position.z = 50;
-    this.camera.position.x = 50;
-    this.camera.position.y = 50;
-    this.camera.lookAt(this.scene.position);
+    this.camera.position.z = 35;
+    this.camera.position.x = -30;
+    this.camera.position.y = 65;
+    this.camera.lookAt(40, 8, 35);
 
-    // Setup Trackball controls
-    this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(35, 0, 35);
+    // // Setup Trackball controls
+    // this.controls = new THREE.TrackballControls(this.camera, this.renderer.domElement);
+    // this.controls.target.set(40, 8, 35);
     
     // Add lights to scene
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -102,7 +102,7 @@ class Game {
       }
     }
     
-    this.controls.update();
+    //this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 
