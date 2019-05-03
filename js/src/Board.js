@@ -19,6 +19,8 @@ class BoardGame {
     this.size = 8;
     this.selectedPiece = null;
     this.turn = 2;
+    this.endText = null;
+    this.capturedCheckers = 0;
 
     this.createBoard();
   }
@@ -32,7 +34,14 @@ class BoardGame {
         this.game.scene.remove(tile.space.mesh);
       }
     }
+    if (this.endText) {
+      this.game.scene.remove(this.endText);
+      this.endText = null;
+    }
     this.createBoard();
+    this.turn = 2;
+    this.capturedCheckers = 0;
+    this.game.reset();
   }
 
   createBoard() {
@@ -135,6 +144,9 @@ class BoardGame {
     if (capturedPiece) {
       this.game.scene.remove(capturedPiece.mesh);
       this.clearPosition(attackPosition);
+      if(capturedPiece.type === "checker" || capturedPiece.type === "crownedChecker") {
+        this.capturedCheckers += 1;
+      }
     }
 
     // handle case if pawn gets to back row
@@ -154,8 +166,11 @@ class BoardGame {
     this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
     
-    // Allow for multiple moves if checkers captures a piece
-    if (capturedPiece && pieceIsChecker && this.selectedPiece.getMoves({attackOnly: true}).length > 0) {
+    if (capturedPiece && this.turn === 2 && capturedPiece.type == "king") {
+      //endgame logic for checkers
+      this.endGame("Checkers Wins!", 2);
+    } else if (capturedPiece && pieceIsChecker && this.selectedPiece.getMoves({attackOnly: true}).length > 0) {
+      // Allow for multiple moves if checkers captures a piece
       this.showMoves(this.selectedPiece.getMoves({attackOnly: true}));
       this.turn = 4;
     } else {
@@ -163,12 +178,45 @@ class BoardGame {
       if(this.turn - 1) {
         this.game.camera.position.x -= 120;
         this.game.camera.lookAt(40, 8, 35);
+        if(this.capturedCheckers === 12) {
+          this.endGame("Chess Wins.", 1)
+        }
       } else {
         this.game.camera.position.x += 120;
         this.game.camera.lookAt(40, 8, 35);
       }
     }
     
+  }
+
+  endGame(text, winner) {
+    this.turn = 10;
+    this.game.camera.position.x = 40;
+    this.game.camera.position.y = 85;
+    this.game.camera.lookAt(40, 8, 35);
+
+    var fontloader = new THREE.FontLoader();
+    fontloader.load( 'js/lib/helvetiker_regular.typeface.json', (function( font ) {
+      var endTextGeom = new THREE.TextGeometry(text, {
+        font: font,
+        size: 5,
+        height: 2,
+        curveSegments: 12
+      });
+
+      var endTextMat = new THREE.MeshNormalMaterial();
+
+      this.endText = new THREE.Mesh(endTextGeom, endTextMat);
+      this.endText.position.set(12, 40, 35);
+      if(winner === 1) {
+        this.endText.position.x += 6;
+      } 
+      this.endText.rotation.x = Math.PI / 2;
+      this.endText.rotation.y = Math.PI;
+      this.endText.rotation.z = Math.PI;
+
+      this.game.scene.add(this.endText);
+    }).bind(this));
   }
   
   checkOnBoard(position) {
@@ -343,6 +391,7 @@ class ChessPiece extends BoardPiece {
         break;
       }
     }
+
     return moves;
   }
 
