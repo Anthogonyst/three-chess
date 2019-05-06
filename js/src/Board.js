@@ -1,7 +1,7 @@
 const spaceSize = 10;
 const boxGeom = new THREE.BoxBufferGeometry(spaceSize, spaceSize, spaceSize);
 const whiteMat = new THREE.MeshToonMaterial({
-  color: new THREE.Color('white')
+  color: new THREE.Color(0x444444)
 });
 const blackMat = new THREE.MeshToonMaterial({
   color: new THREE.Color('black')

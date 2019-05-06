@@ -20,14 +20,20 @@ class Game {
     this.camera.position.x = -30;
     this.camera.position.y = 65;
     this.camera.lookAt(40, 8, 35);
-    
-    // Add lights to scene
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-		directionalLight.position.set(0, 1, 0).normalize();
-		this.scene.add(directionalLight);
 
-    const ambientLight = new THREE.DirectionalLight(0xff0000, 1);
-		this.scene.add(ambientLight);
+    //targets
+    const target = new THREE.Object3D();
+    target.position.set(35,0,35);
+    this.scene.add(target);
+
+    // Add lights to scene
+    const directionalLight = new THREE.DirectionalLight(0xdddddd, 4);
+    directionalLight.position.set(35, 70, 35);
+    directionalLight.target = target;
+    this.scene.add(directionalLight);
+
+    const ambientLight = new THREE.AmbientLight(0x990000);
+    this.scene.add(ambientLight);
 
     // Create mouse and raycaster for picking
     this.raycaster = new THREE.Raycaster();
@@ -59,21 +65,6 @@ class Game {
     const intersects = this.raycaster.intersectObjects(this.boardGame.getClickables()); 
     if ( intersects.length > 0 ) {
       intersects[0].object.onClickCallback();
-    }
-  }
-
-  loadModels(callback) {
-    this.loader = new THREE.GLTFLoader();
-    this.models = {};
-    for (const modelName of modelNames) {
-      this.loader.load(modelDirectory + modelName + ".glb", (function(gltf) {
-        this.models[modelName] = gltf.scene.children[2];
-        // We have loaded all the models
-        if (modelNames.indexOf(modelName) === modelNames.length - 1) {
-          console.log(this.models);
-
-        }
-      }).bind(this));
     }
   }
 
