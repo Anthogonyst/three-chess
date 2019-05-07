@@ -191,31 +191,68 @@ class BoardGame {
 
   endGame(text, winner) {
     this.turn = 10;
-    this.game.camera.position.x = 40;
-    this.game.camera.position.y = 85;
+    // this.game.camera.position.x = 40;
+    // this.game.camera.position.y = 85;
+    this.game.camera.position.set(40, 85, 70);
     this.game.camera.lookAt(40, 8, 35);
 
     var fontloader = new THREE.FontLoader();
     fontloader.load( 'js/lib/helvetiker_regular.typeface.json', (function( font ) {
-      var endTextGeom = new THREE.TextGeometry(text, {
-        font: font,
-        size: 5,
-        height: 2,
-        curveSegments: 12
-      });
 
-      var endTextMat = new THREE.MeshNormalMaterial();
+      // shader from 
+      // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_attributes_lines.html
+      var uniforms;
 
-      this.endText = new THREE.Mesh(endTextGeom, endTextMat);
-      this.endText.position.set(12, 40, 35);
-      if(winner === 1) {
-        this.endText.position.x += 6;
-      } 
-      this.endText.rotation.x = Math.PI / 2;
+			uniforms = {
+				amplitude: { value: 5.0 },
+				opacity: { value: 0.3 },
+				color: { value: new THREE.Color( 0xffffff ) }
+      };
+      
+			var shaderMaterial = new THREE.ShaderMaterial( {
+				uniforms: uniforms,
+				vertexShader: document.getElementById( 'vertexshader' ).textContent,
+				fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+				blending: THREE.AdditiveBlending,
+				depthTest: true,
+				transparent: false
+      } );
+      
+			var geometry = new THREE.TextBufferGeometry( text, {
+				font: font,
+				size: 50,
+				height: 15,
+				curveSegments: 10,
+				bevelThickness: 5,
+				bevelSize: 1.5,
+				bevelEnabled: true,
+				bevelSegments: 10,
+      } );
+
+      geometry.center();
+      
+      var count = geometry.attributes.position.count;
+      
+			var displacement = new THREE.Float32BufferAttribute( count * 3, 3 );
+      geometry.addAttribute( 'displacement', displacement );
+      
+			var customColor = new THREE.Float32BufferAttribute( count * 3, 3 );
+      geometry.addAttribute( 'customColor', customColor );
+      
+      var color = new THREE.Color( 0xffffff );
+      
+			for ( var i = 0, l = customColor.count; i < l; i ++ ) {
+				color.setHSL( i / l, 0.5, 0.5 );
+				color.toArray( customColor.array, i * customColor.itemSize );
+      }
+      
+      this.endText = new THREE.Line( geometry, shaderMaterial );
+      this.endText.position.set(37, 40, 15);
+      this.endText.scale.set(.15, .15, .15);
+      this.endText.rotation.x = 2*Math.PI / 3;
       this.endText.rotation.y = Math.PI;
       this.endText.rotation.z = Math.PI;
-
-      this.game.scene.add(this.endText);
+			this.game.scene.add( this.endText );
     }).bind(this));
   }
   
