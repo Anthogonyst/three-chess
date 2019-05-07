@@ -27,7 +27,7 @@ class Game {
     this.scene.add(target);
 
     // Add lights to scene
-    const directionalLight = new THREE.DirectionalLight(0xdddddd, 4);
+    const directionalLight = new THREE.DirectionalLight(0xcccccc, 3);
     directionalLight.position.set(35, 70, 35);
     directionalLight.target = target;
     this.scene.add(directionalLight);
