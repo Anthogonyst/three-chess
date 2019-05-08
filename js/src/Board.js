@@ -202,15 +202,14 @@ class BoardGame {
 
   endGame(text, winner) {
     this.turn = 10;
-    this.game.camera.position.set(0, 150, 100);
+    this.game.camera.position.set(0, 80, 60);
     this.game.camera.lookAt(0, 0, 0);
 
     var fontloader = new THREE.FontLoader();
     fontloader.load( 'js/lib/helvetiker_regular.typeface.json', (function( font ) {
 
       // shader from 
-      // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_]
-
+      // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_attributes_lines.html
       var uniforms;
 
 			uniforms = {
@@ -257,7 +256,7 @@ class BoardGame {
       }
       
       this.endText = new THREE.Line( geometry, shaderMaterial );
-      this.endText.position.set(0, 40, -25);
+      this.endText.position.set(0, 20, -40);
       this.endText.scale.set(.15, .15, .15);
       this.endText.rotation.x = 2*Math.PI / 3;
       this.endText.rotation.y = Math.PI;
