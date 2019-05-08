@@ -145,7 +145,7 @@ for (const modelName of modelNames) {
   loader.load(modelDirectory + modelName + ".glb", function(gltf) {
     models[modelName] = gltf.scene.children[2];
     // We have loaded all the models
-    if (modelNames.indexOf(modelName) === modelNames.length - 1) {
+    if (Object.keys(models).length === modelNames.length) {
       game = new Game(models);
       game.animate();
     }
