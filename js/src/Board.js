@@ -21,7 +21,7 @@ class BoardGame {
     this.turn = 2;
     this.endText = null;
     this.capturedCheckers = 0;
-
+    this.createSkybox();
     this.createBoard();
   }
 
@@ -45,6 +45,23 @@ class BoardGame {
     this.turn = 2;
     this.capturedCheckers = 0;
     this.game.reset();
+  }
+
+  createSkybox() {
+    var imagePrefix = "js/src/cubeMap/";
+    var directions  = ["px", "nx", "py", "ny", "pz", "nz"];
+    var imageSuffix = ".jpg";
+    var skyGeometry = new THREE.CubeGeometry( 400, 400, 400 );	
+    
+    var materialArray = [];
+    for (var i = 0; i < 6; i++)
+      materialArray.push( new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+        side: THREE.BackSide
+      }));
+    var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+    this.skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+    this.game.scene.add( this.skyBox );
   }
 
   createBoard() {
@@ -171,7 +188,7 @@ class BoardGame {
     
     if (capturedPiece && this.turn === 2 && capturedPiece.type == "king") {
       //endgame logic for checkers
-      this.endGame("Checkers Wins!", 2);
+      this.endGame("Checkers Wins!");
     } else if (capturedPiece && pieceIsChecker && this.selectedPiece.getMoves({attackOnly: true}).length > 0) {
       // Allow for multiple moves if checkers captures a piece
       this.showMoves(this.selectedPiece.getMoves({attackOnly: true}));
@@ -179,16 +196,12 @@ class BoardGame {
     } else {
       this.turn = (this.turn % 2) + 1
       if(this.turn - 1) {
-        //this.game.camera.position.x -= 120;
-        //this.game.camera.lookAt(40, 8, 35);
         this.rotateBoard();
         if(this.capturedCheckers === 12) {
-          this.endGame("Chess Wins.", 1)
+          this.endGame("Chess Wins.")
         }
       } else {
         this.rotateBoard();
-        //this.game.camera.position.x += 120;
-        //this.game.camera.lookAt(40, 8, 35);
       }
     }
     
@@ -201,7 +214,7 @@ class BoardGame {
       .start();
   }
 
-  endGame(text, winner) {
+  endGame(text) {
     this.turn = 10;
     this.game.camera.position.set(0, 80, 60);
     this.game.camera.lookAt(0, 0, 0);
