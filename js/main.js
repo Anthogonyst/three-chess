@@ -109,7 +109,7 @@ class Game {
 
   setupGui() {
     this.effectController = {
-      example: 1,
+      transitionSpeed: 10,
       wave: false,
       reset: (function () {
         this.boardGame.reset();
@@ -118,7 +118,7 @@ class Game {
     const gui = new dat.GUI();
     // Create an gui folder 
     let h = gui.addFolder("Chess");
-    h.add(this.effectController, "example", 0.0, 20.0, 0.2).name("Example");
+    h.add(this.effectController, "transitionSpeed", 0.0, 20.0, 0.2).name("Transition Speed");
     h.add(this.effectController, "wave").name("Wave");
     
     // Create example gui button
