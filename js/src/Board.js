@@ -176,14 +176,16 @@ class BoardGame {
     } else {
       this.turn = (this.turn % 2) + 1
       if(this.turn - 1) {
-        this.game.camera.position.x -= 120;
-        this.game.camera.lookAt(40, 8, 35);
+        //this.game.camera.position.x -= 120;
+        //this.game.camera.lookAt(40, 8, 35);
+        this.rotateBoard();
         if(this.capturedCheckers === 12) {
           this.endGame("Chess Wins.", 1)
         }
       } else {
-        this.game.camera.position.x += 120;
-        this.game.camera.lookAt(40, 8, 35);
+        this.rotateBoard();
+        //this.game.camera.position.x += 120;
+        //this.game.camera.lookAt(40, 8, 35);
       }
     }
     
@@ -200,17 +202,15 @@ class BoardGame {
 
   endGame(text, winner) {
     this.turn = 10;
-    // this.game.camera.position.x = 40;
-    // this.game.camera.position.y = 85;
-    this.game.camera.position.set(40, 85, 70);
-    this.game.camera.lookAt(40, 8, 35);
+    this.game.camera.position.set(0, 150, 100);
+    this.game.camera.lookAt(0, 0, 0);
 
     var fontloader = new THREE.FontLoader();
     fontloader.load( 'js/lib/helvetiker_regular.typeface.json', (function( font ) {
 
       // shader from 
       // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_]
-      attributes_lines.html
+
       var uniforms;
 
 			uniforms = {
@@ -257,7 +257,7 @@ class BoardGame {
       }
       
       this.endText = new THREE.Line( geometry, shaderMaterial );
-      this.endText.position.set(37, 40, 15);
+      this.endText.position.set(0, 40, -25);
       this.endText.scale.set(.15, .15, .15);
       this.endText.rotation.x = 2*Math.PI / 3;
       this.endText.rotation.y = Math.PI;
@@ -319,7 +319,11 @@ class SpaceBlock {
       boxGeom,
       this.material,
     );
-    this.mesh.position.set(spaceSize * position[0], 0, spaceSize * position[1]);
+    this.mesh.position.set(
+      spaceSize * position[0] - spaceSize * this.boardGame.size/2 + spaceSize/2,
+      0,
+      spaceSize * position[1] - spaceSize * this.boardGame.size/2 + spaceSize/2
+    );
     this.mesh.onClickCallback = (function() {
       this.boardGame.movePiece(position);
     }).bind(this);
@@ -365,9 +369,9 @@ class BoardPiece {
     }
     this.position = newPosition ? newPosition : this.position;
     this.mesh.position.set(
-      spaceSize * this.position[0],
+      spaceSize * this.position[0] - spaceSize * this.boardGame.size/2 + spaceSize/2,
       this.boardGame.getSpaceAtPosition(this.position).mesh.position.y + this.meshOffset,
-      spaceSize * this.position[1]
+      spaceSize * this.position[1] - spaceSize * this.boardGame.size/2 + spaceSize/2
     );
   }
 

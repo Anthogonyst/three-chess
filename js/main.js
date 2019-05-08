@@ -16,10 +16,10 @@ class Game {
 
     // Create the camera
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 15000);
-    this.camera.position.z = 35;
-    this.camera.position.x = -30;
-    this.camera.position.y = 65;
-    this.camera.lookAt(40, 8, 35);
+    //this.camera.position.z = 35;
+    this.camera.position.x = -70;
+    this.camera.position.y = 60;
+    this.camera.lookAt(0, 0, 0);
 
     //targets
     const target = new THREE.Object3D();
