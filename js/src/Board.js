@@ -162,7 +162,7 @@ class BoardGame {
     
     // Move the piece
     this.setPieceAtPosition(newPosition, this.selectedPiece);
-    this.selectedPiece.setPosition(newPosition);
+    this.selectedPiece.setPosition(newPosition, true);
     this.selectedPiece.hasMoved = true;
     this.deactivateSpaces();
     
@@ -192,12 +192,10 @@ class BoardGame {
   }
 
   rotateBoard() {
-    const myScene = this.game.scene;
-    console.log(myScene.rotation);
-    new TWEEN.Tween(this.game.scene.rotation).to({y: this.game.scene.rotation.y + Math.PI}, 1000)
+    new TWEEN.Tween(this.game.scene.rotation)
+      .to({y: this.game.scene.rotation.y + Math.PI}, 1000)
       .easing(TWEEN.Easing.Quadratic.Out)
       .start();
-    //myScene.rotation.y += 180;
   }
 
   endGame(text, winner) {
@@ -362,16 +360,29 @@ class BoardPiece {
   }
 
   // Updates and initializes piece positions
-  setPosition(newPosition) {
+  setPosition(newPosition, animated=false) {
     if (!this.mesh) {
       throw new Error("A mesh is not defined for this object");
     }
     this.position = newPosition ? newPosition : this.position;
-    this.mesh.position.set(
+    const targetPosition = new THREE.Vector3(
       spaceSize * this.position[0] - spaceSize * this.boardGame.size/2 + spaceSize/2,
       this.boardGame.getSpaceAtPosition(this.position).mesh.position.y + this.meshOffset,
       spaceSize * this.position[1] - spaceSize * this.boardGame.size/2 + spaceSize/2
     );
+    if (animated) {
+      // Do this
+      new TWEEN.Tween(this.mesh.position)
+        .to({
+          x: targetPosition.x,
+          y: targetPosition.y,
+          z: targetPosition.z
+        }, 1000)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+    } else {
+      this.mesh.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
+    }
   }
 
   setClickHandler() {
