@@ -210,7 +210,7 @@ class BoardGame {
   rotateBoard() {
     new TWEEN.Tween(this.game.scene.rotation)
       .to({y: this.game.scene.rotation.y + Math.PI}, this.game.effectController.transitionSpeed * 100)
-      .easing(TWEEN.Easing.Quadratic.Out)
+      .easing(TWEEN.Easing.Sinusoidal.InOut)
       .start();
   }
 
@@ -394,7 +394,7 @@ class BoardPiece {
           y: targetPosition.y,
           z: targetPosition.z
         }, this.boardGame.game.effectController.transitionSpeed * 100)
-        .easing(TWEEN.Easing.Quadratic.Out)
+        .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start();
     } else {
       this.mesh.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
