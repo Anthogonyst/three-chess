@@ -39,6 +39,9 @@ class BoardGame {
       this.endText = null;
     }
     this.createBoard();
+    if(this.turn == 1) {
+      this.rotateBoard();
+    }
     this.turn = 2;
     this.capturedCheckers = 0;
     this.game.reset();
