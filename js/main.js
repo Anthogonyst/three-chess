@@ -33,7 +33,7 @@ class Game {
     this.scene.add(directionalLight);
 
     const ambientLight = new THREE.AmbientLight(0x990000);
-    this.scene.add(ambientLight);
+    //this.scene.add(ambientLight);
 
     // Create mouse and raycaster for picking
     this.raycaster = new THREE.Raycaster();
@@ -82,6 +82,10 @@ class Game {
     for (let i = 0; i < this.gameObjects.length; i++) {
       this.gameObjects[i].update();
     }
+    
+    // Update TWEEN
+    TWEEN.update();
+    
     // Do the wave
     if (this.effectController.wave) {
       for (let i = 0; i < this.boardGame.size; i++) {
@@ -136,6 +140,7 @@ const modelNames = [
   "crownedchecker",
 ];
 
+let game;
 const loader = new THREE.GLTFLoader();
 const models = {};
 for (const modelName of modelNames) {
@@ -143,7 +148,7 @@ for (const modelName of modelNames) {
     models[modelName] = gltf.scene.children[2];
     // We have loaded all the models
     if (modelNames.indexOf(modelName) === modelNames.length - 1) {
-      const game = new Game(models);
+      game = new Game(models);
       game.animate();
     }
   });

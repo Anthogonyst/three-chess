@@ -172,7 +172,7 @@ class BoardGame {
     } else if (capturedPiece && pieceIsChecker && this.selectedPiece.getMoves({attackOnly: true}).length > 0) {
       // Allow for multiple moves if checkers captures a piece
       this.showMoves(this.selectedPiece.getMoves({attackOnly: true}));
-      this.turn = 4;
+      this.turn = 2;
     } else {
       this.turn = (this.turn % 2) + 1
       if(this.turn - 1) {
@@ -189,6 +189,15 @@ class BoardGame {
     
   }
 
+  rotateBoard() {
+    const myScene = this.game.scene;
+    console.log(myScene.rotation);
+    new TWEEN.Tween(this.game.scene.rotation).to({y: this.game.scene.rotation.y + Math.PI}, 1000)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .start();
+    //myScene.rotation.y += 180;
+  }
+
   endGame(text, winner) {
     this.turn = 10;
     // this.game.camera.position.x = 40;
@@ -200,7 +209,8 @@ class BoardGame {
     fontloader.load( 'js/lib/helvetiker_regular.typeface.json', (function( font ) {
 
       // shader from 
-      // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_attributes_lines.html
+      // https://github.com/mrdoob/three.js/blob/master/examples/webgl_custom_]
+      attributes_lines.html
       var uniforms;
 
 			uniforms = {
