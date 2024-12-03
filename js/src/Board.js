@@ -89,14 +89,8 @@ class BoardGame {
           }
         } else if ( i === 6) {
           piece = new PawnChessPiece(this, [i, j], 1);
-        } else if ( i === 0 || i == 2) {
-          if (j % 2 == 0) {
-            piece = new CheckerPiece(this, [i, j], 2);
-          }
-        } else if (i === 1) {
-          if (j % 2 == 1) {
-            piece = new CheckerPiece(this, [i, j], 2);
-          }
+        } else if ( i === 0 || i == 1 || i == 2) {
+          piece = new CheckerPiece(this, [i, j], 2);
         }
         row[j].piece = piece;
       }
